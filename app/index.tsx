@@ -42,14 +42,33 @@ export default function Index() {
 
   // console.log(user?.primaryEmailAddress?.emailAddress);
 
+  // useEffect(() => {
+  //   if (isSignedIn) {
+  //     //TODO: Redirect to Home screen.
+  //     router.replace("/(tabs)/home");
+  //   }
+  //   if (isSignedIn != undefined) {
+  //     setLoading(false);
+  //   }
+  // }, [isSignedIn]);
+
+  // ...existing code...
   useEffect(() => {
+    // wait until Clerk finishes loading
+    if (!isLoaded) return;
+
+    // small delay so the root layout / navigator has time to mount
     if (isSignedIn) {
-      //TODO: Redirect to Home screen.
+      const id = setTimeout(() => {
+        router.replace("/(tabs)/home");
+      }, 500);
+      return () => clearTimeout(id);
     }
-    if (isSignedIn != undefined) {
-      setLoading(false);
-    }
-  }, [isSignedIn]);
+
+    // Clerk finished loading and user is not signed in — hide splash
+    setLoading(false);
+  }, [isLoaded, isSignedIn, router]);
+  // ...existing code...
 
   useWarmUpBrowser();
 
@@ -117,6 +136,7 @@ export default function Index() {
           COLORS.primaryGradient,
         ]}
         style={[StyleSheet.absoluteFill]}
+        pointerEvents="none"
       />
       <Image
         source={require("@/assets/images/robot/img13.png")}
