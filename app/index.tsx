@@ -1,3 +1,4 @@
+import { firestoreDb } from "@/config/firebaseConfig";
 import { COLORS } from "@/constants/colors";
 import { useAuth, useSSO, useUser } from "@clerk/clerk-expo";
 import { Fontisto } from "@expo/vector-icons";
@@ -6,6 +7,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { doc, setDoc } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -65,6 +67,17 @@ export default function Index() {
           // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
           redirectUrl: AuthSession.makeRedirectUri(),
         });
+
+      // console.log("----->", signIn);
+
+      if (signUp) {
+        await setDoc(doc(firestoreDb, "users", signUp.emailAddress ?? ""), {
+          email: signUp.emailAddress,
+          name: signUp.firstName + " " + signUp.lastName,
+          joinDate: Date.now(),
+          credits: 20,
+        });
+      }
 
       // If sign in was successful, set the active session
       if (createdSessionId) {
